@@ -39,8 +39,8 @@ g = 9.81  # m/s^2
 d = [0.05, 0.05]  # (N*m)/(rad/s)
 
 # Joint friction
-b = [10, 10]  # N*m
-c = [20, 20]  # s/rad
+b = [1, 1]  # N*m
+c = [2, 2]  # s/rad
 
 # Actuator limits
 umax = [250, 30]  # N*m
@@ -77,7 +77,7 @@ vmax = [np.pi, np.pi]  # rad/s
 amax = [5, 1] # rad/s^2
 
 # Initialize controller
-controller = Controller(dt, q, target, path_type, kp, kd, kg, ku, kf, window, umax, vmax, amax, history_size, heuristic, adapt0)
+controller = Controller(dt, q, target, path_type, kp, kd, kg, ku, kf, umax, vmax, amax, history_size, window, adapt0)
 
 ################################################# EQUATIONS OF MOTION
 
@@ -121,7 +121,7 @@ def dynamics(q, u):
 	              b[1]*np.tanh(c[1]*q[3])
 				])
 
-	# Record joint friction for examining the unstructured disturbance
+	# Record joint friction for examining the repetitive disturbance
 	global unstruct_history, i
 	unstruct_history[i, :] = F + D
 
@@ -167,7 +167,7 @@ mest_history = np.zeros((len(t_arr), 2))
 xest_history = np.zeros((len(t_arr), 4))
 target_history = np.zeros((len(t_arr), 2))
 unstruct_history = np.zeros((len(t_arr), 2))  # recorded in dynamics function
-dist_history = np.zeros((len(t_arr), 2))
+rep_history = np.zeros((len(t_arr), 2))
 
 # Integrate dynamics using zero-order forward stepping
 for i, t in enumerate(t_arr):
@@ -184,7 +184,7 @@ for i, t in enumerate(t_arr):
 	u_history[i, :] = u
 	adapt_history[i, :] = controller.adapt
 	target_history[i, :] = controller.target
-	dist_history[i, :] = controller.dist
+	rep_history[i, :] = controller.rep
 
 	# Quit early if something breaks
 	if controller.kill:
@@ -273,11 +273,11 @@ if controller.use_RL:
 	ax1a = fig1a.add_subplot(1, 2, 1)
 	ax1a.set_xlabel('Time (s)')
 	ax1a.set_ylabel('Link 1 Disturbance Estimate (N*m)')
-	ax1a.plot(t_arr, dist_history[:, 0], 'k', t_arr, unstruct_history[:, 0], 'g--')
+	ax1a.plot(t_arr, rep_history[:, 0], 'k', t_arr, unstruct_history[:, 0], 'g--')
 	ax1a = fig1a.add_subplot(1, 2, 2)
 	ax1a.set_xlabel('Time (s)')
 	ax1a.set_ylabel('Link 2 Disturbance Estimate (N*m)')
-	ax1a.plot(t_arr, dist_history[:, 1], 'k', t_arr, unstruct_history[:, 1], 'g--')
+	ax1a.plot(t_arr, rep_history[:, 1], 'k', t_arr, unstruct_history[:, 1], 'g--')
 	
 	plt.show()
 

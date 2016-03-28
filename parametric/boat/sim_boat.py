@@ -25,7 +25,7 @@ T = 60  # s
 dt = 0.001  # s
 framerate = 60  # fps
 outline_path = True  # show path outline on animation?
-speedup = 8  # kinda makes the playback a little faster
+speedup = 1  # kinda makes the playback a little faster
 store_data = False  # should data be stored into a .mat?
 
 # Initial condition
@@ -76,7 +76,7 @@ history_size = 80
 adapt0 = np.zeros(13)
 
 # Path to track
-path_type = 'figure8'  # 'waypoint', 'sequence', 'circle', or 'figure8'
+path_type = 'sequence'  # 'waypoint', 'sequence', 'circle', or 'figure8'
 target = [10, 40, 0] # [m(x), m(y), rad] or [m(r), s(T), -]
 vmax = [2, 1, 2]  # [m/s, m/s, rad/s]
 amax = [1, 1, 1] # [m/s^2, m/s^2, rad/s^2]

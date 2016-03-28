@@ -1,6 +1,5 @@
 """
-# (todo)
-#<<< finish documentation
+Simulator for a two-linkage robotic manipulator.
 
 """
 
@@ -17,7 +16,7 @@ from control_2link import Controller
 ################################################# PHYSICAL PARAMETERS
 
 # Simulation duration, timestep, and animation
-T = 60  # s
+T = 20  # s
 dt = 0.001  # s
 framerate = 60  # fps
 animate_adapt = True  # should adaptation be shown on animation
@@ -39,7 +38,7 @@ g = 9.81  # m/s^2
 d = [0.05, 0.05]  # (N*m)/(rad/s)
 
 # Joint friction
-b = [1, 1]  # N*m
+b = [0, 0]  # N*m
 c = [2, 2]  # s/rad
 
 # Actuator limits
@@ -66,12 +65,11 @@ kg = 'LS'
 ku = 5*np.ones(5)
 kf = 0
 window = np.inf  # s
-history_size = 100
-heuristic = True  # True: compare only individual svd's. False: compare every possible insertion.
+history_size = 50
 adapt0 = [0, 0, 0, 0, 0]  # [(m1+m2)*g*L1, (m1+m2)*L1^2, m2*g*L2, m2*L1*L2, m2*L2^2]_est
 
 # Path to track
-path_type = 'cycle'  # 'waypoint', 'random', 'train', or 'cycle'
+path_type = 'random'  # 'waypoint', 'random', 'train', or 'cycle'
 target = np.deg2rad([70, 45]) # m, or rad (for 'train' and 'cycle')
 vmax = [np.pi, np.pi]  # rad/s
 amax = [5, 1] # rad/s^2

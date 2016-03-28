@@ -1,6 +1,8 @@
 """
-# (todo)
-#<<< finish documentation
+Concurrent-learning controller derived for
+a two-linkage robotic manipulator. Includes
+repetitive learning if the path to track
+is cyclical.
 
 """
 
@@ -98,7 +100,7 @@ class Controller:
 		"""
 		Sets model limits.
 		Uses the limits to compute a model reference for tracking,
-		and uses repmax for limiting repetative learning.
+		and uses repmax for limiting repetitive learning.
 
 		"""
 		self.umax = np.array(umax, dtype=np.float32)
@@ -127,7 +129,7 @@ class Controller:
 		Resets controller time and reference acceleration.
 		Sets the path initial state, the target position, and the
 		type of path. Updates reference q to its initial t=0 value.
-		If the path will be cyclic, repetative learning is enabled.
+		If the path will be cyclic, repetitive learning is enabled.
 		The path cycle period is hardcoded in.
 
 		"""
@@ -155,7 +157,11 @@ class Controller:
 
 	def get_effort(self, q, dt):
 		"""
-		#<<< explain adaptive controller
+		Returns the vector of torques as a PD controller plus
+		a feedforward term that uses an estimate of the system's
+		physical parameters. The output is saturated at umax as
+		specified by the user previously. Before returning the
+		torques, the latest parameter estimate is also updated.
 
 		"""
 		# Tracking errors
@@ -213,7 +219,9 @@ class Controller:
 
 	def update_learning(self, q, u, dt):
 		"""
-		#<<< explain concurrent learning
+		Concurrent-learning plus (if applicable) repetitive learning.
+		http://arxiv.org/pdf/1507.08903.pdf
+		http://www.me.berkeley.edu/~horowitz/Publications_files/Papers_numbered/Journal/24j_Kaneko_repetitive_manipulators_IEEE_TRA97.pdf
 
 		"""
 		# Instantaneous parts of filtered prediction regressor
@@ -345,7 +353,18 @@ class Controller:
 
 	def update_ref(self, dt):
 		"""
-		#<<< explain trajgen
+		Updates the reference state qref depending on the 
+		settings created in set_path. In every case, a 
+		spring-damper tuned to vmax and amax is used to 
+		generate the profile between each discontinuous target.
+
+		'train': sequence of random joint-space configurations
+
+		'waypoint': a single end-effector-space waypoint
+
+		'random': sequence of random 'waypoint's
+
+		'cycle': switching between two 'waypoint's at Tcycle time
 
 		"""
 		self.path_time = self.path_time + dt
@@ -392,6 +411,7 @@ class Controller:
 		"""
 		Computes reference state derivative (qrefdot).
 		Takes reference state (qref) and reference control input (uref).
+		Spring-damper model tuned to vmax (terminal velocity) and amax (saturation).
 
 		"""
 		# Imposed actuator saturation

@@ -262,8 +262,8 @@ class Controller:
 				hotseat = np.argmax(eig_mins)
 				if eig_mins[hotseat] > self.history_eig and not self.saturated:
 					# Print if wisdom has increased significantly
-					if np.round(eig_mins[hotseat]*100, 1) > np.round(self.history_eig*100, 1):
-						print('Wisdom: {}  @ time: {}'.format(np.round(self.history_eig*100, 1), self.time))
+					if np.round(eig_mins[hotseat]*100, 2) > np.round(self.history_eig*100, 2):
+						print('Significant: {}  @ time: {}'.format(np.round(self.history_eig*100, 1), self.time))
 					# Update history
 					self.history_stack[hotseat] = new_data
 					self.history_eig = eig_mins[hotseat]

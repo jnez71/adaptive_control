@@ -38,7 +38,7 @@ g = 9.81  # m/s^2
 d = [0.05, 0.05]  # (N*m)/(rad/s)
 
 # Joint friction
-b = [0, 0]  # N*m
+b = [0.1, 0.1]  # N*m
 c = [2, 2]  # s/rad
 
 # Actuator limits

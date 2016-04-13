@@ -13,7 +13,7 @@ import numpy.linalg as npl
 
 ################################################# PRIMARY CLASS
 
-class Controller:
+class NN_controller:
 
 	def __init__(self, dt, q0, target, path_type,
 				 kp, kd, n, kv, kw,

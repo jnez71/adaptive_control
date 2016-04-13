@@ -1,6 +1,6 @@
 """
-Simulator for a two-linkage robotic manipulator.
-Copied over for use testing NN controller.
+Simulator for a two-linkage robotic manipulator
+used for testing the 2dof neural net controller.
 
 """
 
@@ -12,7 +12,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.animation as animation
 
-from control_NN import Controller
+from nn_controller_2dof import NN_controller
 
 ################################################# PHYSICAL PARAMETERS
 
@@ -72,7 +72,7 @@ vmax = [np.pi, np.pi]  # rad/s
 amax = [5, 1] # rad/s^2
 
 # Initialize controller
-controller = Controller(dt, q, target, path_type, kp, kd, n, kv, kw, umax, vmax, amax)
+controller = NN_controller(dt, q, target, path_type, kp, kd, n, kv, kw, umax, vmax, amax)
 
 ################################################# EQUATIONS OF MOTION
 

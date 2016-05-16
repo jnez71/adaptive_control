@@ -146,7 +146,7 @@ adapt_history = np.zeros((len(t_arr), len(adapt0)))
 target_history = np.zeros((len(t_arr), len(target)))
 aref_history = np.zeros((len(t_arr), len(target)))
 
-# Integrate dynamics using zero-order forward stepping
+# Integrate dynamics using first-order forward stepping
 for i, t in enumerate(t_arr):
 
 	# Controller's decision

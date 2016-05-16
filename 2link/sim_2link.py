@@ -167,7 +167,7 @@ target_history = np.zeros((len(t_arr), 2))
 unstruct_history = np.zeros((len(t_arr), 2))  # recorded in dynamics function
 rep_history = np.zeros((len(t_arr), 2))
 
-# Integrate dynamics using zero-order forward stepping
+# Integrate dynamics using first-order forward stepping
 for i, t in enumerate(t_arr):
 
 	# Controller's decision

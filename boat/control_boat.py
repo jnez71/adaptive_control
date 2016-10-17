@@ -40,6 +40,7 @@ class Controller:
 
 		self.adapt = np.array(adapt0, dtype=np.float32)
 		self.adapt_err = np.zeros(self.nparams)
+		self.last_adaptdot = np.zeros(self.nparams)
 
 		self.uf = np.zeros(self.ncontrols)
 		self.Yuf = np.zeros((self.ncontrols, self.nparams))
@@ -50,6 +51,9 @@ class Controller:
 
 		self.q0 = q0
 		self.q_stack = deque([q0] * self.nfilt)
+
+		self.last_Ru = np.zeros(self.ncontrols)
+		self.last_Yuf1dot = np.zeros((self.ncontrols, self.nparams))
 
 		self.history_stack = deque([self.make_history_pair(self.Yuf, self.uf)] * history_size)
 		self.history_size = history_size
@@ -165,7 +169,9 @@ class Controller:
 			self.kg = self.kg - (self.kg.dot(self.ku.dot(self.Yuf.T.dot(self.Yuf))).dot(self.kg))*dt
 
 		# Update adaptation
-		self.adapt = self.adapt + self.kg.dot(Y.T.dot(r) + self.ku.dot(self.adapt_err))*dt
+		adaptdot = self.kg.dot(Y.T.dot(r) + self.ku.dot(self.adapt_err))
+		self.adapt = self.adapt + (adaptdot + self.last_adaptdot)*dt/2
+		self.last_adaptdot = np.copy(adaptdot)
 
 		# Update filtered prediction regressor, filtered control effort, and learning history stack
 		self.update_learning(q, R, u, dt)
@@ -224,10 +230,15 @@ class Controller:
 			self.Yuf1 = self.Yuf1 + Yuf1dot*dt
 		# ...or finite window push pop
 		else:
-			self.uf_stack.append(R.dot(u)*dt)
+			Ru = R.dot(u)
+			self.uf_stack.append((Ru + self.last_Ru)*dt/2)
+			self.last_Ru = np.copy(Ru)
 			self.uf = (self.uf - self.uf_stack.popleft()) + self.uf_stack[-1]
-			self.Yuf1_stack.append(Yuf1dot*dt)
+
+			self.Yuf1_stack.append((Yuf1dot + self.last_Yuf1dot)*dt/2)
+			self.last_Yuf1dot = np.copy(Yuf1dot)
 			self.Yuf1 = (self.Yuf1 - self.Yuf1_stack.popleft()) + self.Yuf1_stack[-1]
+
 			self.q_stack.append(q)
 			self.q0 = self.q_stack.popleft()
 
@@ -335,7 +346,7 @@ class Controller:
 			(qrefdot, self.aref) = self.reference_dynamics(self.qref, uref, Rref)
 			self.qref = self.qref + qrefdot*dt
 			self.qref[2] = np.arctan2(np.sin(self.qref[2]), np.cos(self.qref[2]))
-			if self.path_type == 'sequence' and self.path_time > 5:
+			if self.path_type == 'sequence' and self.path_time > 10:
 				self.set_path(self.qref, [10, 10, 2*np.pi]*(np.random.rand(3) - 0.5), 'sequence')
 
 		elif self.path_type == 'circle':

@@ -61,12 +61,13 @@ umax = [np.inf, np.inf, np.inf]  # [N, N, N*m]
 # Sensor noise
 noise_mean = [0, 0, 0, 0, 0, 0]  # [m, m, rad, m/s, m/s, rad/s]
 noise_stdv = [0, 0, 0, 0, 0, 0]  # [m, m, rad, m/s, m/s, rad/s]
+# [0.01, 0.01, np.deg2rad(0.5), 0.02, 0.02, np.deg2rad(1)]
 
 ################################################# CONTROL SYSTEM PARAMETERS
 
 # Proportional and derivative gains
-kp = [1500, 1500, 4000]  # [N/m, N/m, (N*m)/rad]
-kd = [1500, 1500, 4000]  # [N/(m/s), N/(m/s), (N*m)/(rad/s)]
+kp = [1000, 1000, 3000]  # [N/m, N/m, (N*m)/rad]
+kd = [1000, 1000, 3000]  # [N/(m/s), N/(m/s), (N*m)/(rad/s)]
 
 # Adaptive gains, filter window, history stack size, and initial estimate
 kg = 0.01 * np.ones(13)
@@ -81,8 +82,11 @@ target = [10, 40, 0] # [m(x), m(y), rad] or [m(r), s(T), -]
 vmax = [2, 1, 2]  # [m/s, m/s, rad/s]
 amax = [1, 1, 1] # [m/s^2, m/s^2, rad/s^2]
 
+# Rate at which controller is called
+dt_c = 0.02  # s
+
 # Initialize controller
-controller = Controller(dt, q, target, path_type, kp, kd, kg, ku, umax, vmax, amax, history_size, filter_window, adapt0)
+controller = Controller(dt_c, q, target, path_type, kp, kd, kg, ku, umax, vmax, amax, history_size, filter_window, adapt0)
 
 ################################################# EQUATIONS OF MOTION
 
@@ -145,13 +149,17 @@ u_history = np.zeros((len(t_arr), len(target)))
 adapt_history = np.zeros((len(t_arr), len(adapt0)))
 target_history = np.zeros((len(t_arr), len(target)))
 aref_history = np.zeros((len(t_arr), len(target)))
+u = np.zeros(len(target))
+update_count = 0
 
 # Integrate dynamics using first-order forward stepping
 for i, t in enumerate(t_arr):
 
 	# Controller's decision
-	sensor_noise = noise_mean + noise_stdv*np.random.randn(len(q))
-	u = controller.get_effort(q + sensor_noise, dt)
+	if t > update_count * dt_c:
+		sensor_noise = noise_mean + noise_stdv*np.random.randn(len(q))
+		u = controller.get_effort(q + sensor_noise, dt_c)
+		update_count += 1
 
 	# Record this instant
 	u_history[i, :] = u

@@ -1,5 +1,5 @@
-Below is the relationship between this code and
-<paper>
+Below is the relationship between this code and 
+http://ieeexplore.ieee.org/document/7798300/ 
 as well as assorted notes for the user.
 
 --------------------------------------------------

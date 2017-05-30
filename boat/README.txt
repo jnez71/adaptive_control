@@ -75,26 +75,23 @@ and Yuf (scriptY) integral/filter stacks.
 
 --------------------------------------------------
 
-  theta
-  -----
-orig   new
-----   ---
-   m = m
- Xud = wm_xu
- Yvd = wm_yv
- mxg = m*xg
- Yrd = wm_yr
-  Iz = Iz
- Nrd = wm_nr
-Xauu = d_xuu
-Yavv = d_yvv
-Yarv = d_yrv
-Yavr = d_yvr
-Yarr = d_yrr
-Navv = d_nvv
-Narv = d_nrv
-Navr = d_nvr
-Narr = d_nrr
+       theta
+       -----
+    orig   new
+    ----   ----
+   m-Xud = m-wm_xu
+   m-Yvd = m-wm_yv
+m*xg-Yrd = m*xg-wm_yr
+  Iz-Nrd = Iz-wm_nr
+    Xauu = d_xuu
+    Yavv = d_yvv
+    Yarv = d_yrv
+    Yavr = d_yvr
+    Yarr = d_yrr
+    Navv = d_nvv
+    Narv = d_nrv
+    Navr = d_nvr
+    Narr = d_nrr
 
 (note that "wm" stands for "water mass" and "d" stands for "drag")
 

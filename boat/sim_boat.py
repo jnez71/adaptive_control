@@ -21,7 +21,7 @@ from control_boat import Controller
 ################################################# PHYSICAL PARAMETERS
 
 # Simulation duration, timestep, and animation
-T = 40  # s
+T = 80  # s
 dt = 0.002  # s
 framerate = 20  # fps
 outline_path = True  # show path outline on animation?

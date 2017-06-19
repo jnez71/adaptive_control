@@ -21,15 +21,15 @@ from control_boat import Controller
 ################################################# PHYSICAL PARAMETERS
 
 # Simulation duration, timestep, and animation
-T = 60  # s
-dt = 0.001  # s
-framerate = 60  # fps
+T = 40  # s
+dt = 0.002  # s
+framerate = 20  # fps
 outline_path = True  # show path outline on animation?
 speedup = 1  # kinda makes the playback a little faster
 store_data = False  # should data be stored into a .mat?
 
 # Initial condition
-q = np.array([0, 0, 0, 0, 0, 0])  # [m, m, rad, m/s, m/s, rad/s]
+q = np.array([3.1, 0, 1.6, 4.4, 0, 0.95])  # [m, m, rad, m/s, m/s, rad/s]
 
 # Boat inertia and center of gravity
 m = 1000  # kg
@@ -66,24 +66,24 @@ noise_stdv = [0, 0, 0, 0, 0, 0]  # [m, m, rad, m/s, m/s, rad/s]
 ################################################# CONTROL SYSTEM PARAMETERS
 
 # Proportional and derivative gains
-kp = [1000, 1000, 3000]  # [N/m, N/m, (N*m)/rad]
-kd = [1000, 1000, 3000]  # [N/(m/s), N/(m/s), (N*m)/(rad/s)]
+kp = np.array([1000, 1000, 3000])  # [N/m, N/m, (N*m)/rad]
+kd = np.array([1000, 1000, 3000])  # [N/(m/s), N/(m/s), (N*m)/(rad/s)]
 
 # Adaptive gains, filter window, history stack size, and initial estimate
-kg = 0.01 * np.ones(13)
+kg = 0.001 * np.ones(13)
 ku = 50 * np.ones(13)
 filter_window = 0.5  # s
 history_size = 80
-adapt0 = np.zeros(13)
+adapt0 = [512.5, 625, 0, 1000, -3.125, -31.25, -50, 0, 0, -31.25, -7.8125, 0, -81.25]
 
 # Path to track
-path_type = 'sequence'  # 'waypoint', 'sequence', 'circle', or 'figure8'
-target = [10, 40, 0] # [m(x), m(y), rad] or [m(r), s(T), -]
+path_type = 'figure8'  # 'waypoint', 'sequence', 'circle', or 'figure8'
+target = [10, 20, 0] # [m(x), m(y), rad] or [m(r), s(T), -]
 vmax = [2, 1, 2]  # [m/s, m/s, rad/s]
 amax = [1, 1, 1] # [m/s^2, m/s^2, rad/s^2]
 
 # Rate at which controller is called
-dt_c = 0.02  # s
+dt_c = dt  # s
 
 # Initialize controller
 controller = Controller(dt_c, q, target, path_type, kp, kd, kg, ku, umax, vmax, amax, history_size, filter_window, adapt0)
@@ -258,9 +258,8 @@ ax1.grid(True)
 adapt_true = np.array([m - wm_xu, m - wm_yv, m*xg - wm_yr, Iz - wm_nr, d_xuu, d_yvv, d_yrv, d_yvr, d_yrr, d_nvv, d_nrv, d_nvr, d_nrr])
 ax1 = fig1.add_subplot(fig1rows, fig1cols, 8)
 ax1.set_title('Adaptive Estimates', fontsize=16)
-colors = [np.zeros(3)] * len(adapt_true)
+colors=plt.cm.rainbow(np.linspace(0, 1, 13))
 for i in xrange(len(adapt_true)):
-	colors[i] = np.random.rand(3)
 	ax1.plot(t_arr, adapt_history[:, i], color=colors[i])
 	ax1.plot([0, t_arr[-1]], adapt_true[i]*np.ones(2), color=colors[i], linestyle='--')
 ax1.set_xlabel('Time (s)')
@@ -291,51 +290,50 @@ vals, vecs = np.linalg.eig(YY_sum)
 print('\nFinal adaptation error: {}\n'.format(np.round(adapt_true - controller.adapt, 1)))
 print('Final eigenvalues:\n{}\n'.format(np.real(vals)))
 
-plt.show()
 
 # Create plot for in-depth look at adaptation
+pnames = ["m-wm_xu", "m-wm_yv", "m*xg-wm_yr", "Iz-wm_nr",
+          "d_xuu", "d_yvv", "d_nrr", "d_yrr", "d_yrv",
+          "d_yvr", "d_nvv", "d_nrv", "d_nvr"]
 ttild = np.array([adapt_true]) - adapt_history
 ttild_norm = np.zeros(len(t_arr))
 fig1a = plt.figure()
 fig1a.suptitle('Adaptation', fontsize=20)
-ax1a = fig1a.add_subplot(1, 3, 1)
-ax1a.set_title('Estimates', fontsize=16)
-ax1a.set_xlabel('Time (s)')
-for i in xrange(len(adapt_true)):
-	ax1a.plot(t_arr, adapt_history[:, i], color=colors[i])
-	ax1a.plot([0, t_arr[-1]], adapt_true[i]*np.ones(2), color=colors[i], linestyle='--')
-ax1a.grid(True)
-ax1a = fig1a.add_subplot(1, 3, 2)
-ax1a.set_title('Errors', fontsize=16)
-ax1a.set_xlabel('Time (s)')
+ax1a = fig1a.add_subplot(3, 1, 2)
+ax1a.set_ylabel('Errors', fontsize=16)
 for i in xrange(len(adapt_true)):
 	ax1a.plot(t_arr, ttild[:, i], color=colors[i])
 ax1a.grid(True)
-ax1a = fig1a.add_subplot(1, 3, 3)
-ax1a.set_title('Error Norm', fontsize=16)
-ax1a.set_xlabel('Time (s)')
+ax1a = fig1a.add_subplot(3, 1, 3)
+ax1a.set_ylabel('Error Norm', fontsize=16)
+ax1a.set_xlabel('Time (s)', fontsize=16)
 for i in xrange(len(t_arr)):
 	ttild_norm[i] = np.linalg.norm(ttild[i, :])
 ax1a.plot(t_arr, ttild_norm)
 ax1a.grid(True)
+ax1a = fig1a.add_subplot(3, 1, 1)
+ax1a.set_ylabel('Estimates', fontsize=16)
+for i in xrange(len(adapt_true)):
+    ax1a.plot(t_arr, adapt_history[:, i], color=colors[i])
+    ax1a.plot([0, t_arr[-1]], adapt_true[i]*np.ones(2), color=colors[i], label=pnames[i], linestyle='--')
+ax1a.legend(loc='upper right')
+ax1a.grid(True)
 
-plt.show()
 
-# Create figure for parametric results
-fig2 = plt.figure()
-fig2.suptitle('Pose Space', fontsize=20)
-ax2 = fig2.add_subplot(1, 1, 1)
-ax2.set_xlabel('X (m)')
-ax2.set_ylabel('Y (m)')
+# # Create figure for parametric results
+# fig2 = plt.figure()
+# fig2.suptitle('Pose Space', fontsize=20)
+# ax2 = fig2.add_subplot(1, 1, 1)
+# ax2.set_xlabel('X (m)')
+# ax2.set_ylabel('Y (m)')
 
-# Plot parametric
-ax2.plot(q_history[:, 0], q_history[:, 1], 'k', qref_history[:, 0], qref_history[:, 1], 'g--')
-ax2.scatter(q_history[0, 0], q_history[0, 1], color='r', s=50)
-if path_type in ['waypoint', 'sequence']:
-	ax2.scatter(target_history[:, 0], target_history[:, 1], color='g', s=50)
-ax2.grid(True)
+# # Plot parametric
+# ax2.plot(q_history[:, 0], q_history[:, 1], 'k', qref_history[:, 0], qref_history[:, 1], 'g--')
+# ax2.scatter(q_history[0, 0], q_history[0, 1], color='r', s=50)
+# if path_type in ['waypoint', 'sequence']:
+# 	ax2.scatter(target_history[:, 0], target_history[:, 1], color='g', s=50)
+# ax2.grid(True)
 
-plt.show()
 
 # Figure for animation
 fig3 = plt.figure()
@@ -343,6 +341,7 @@ fig3.suptitle('Evolution')
 ax3 = fig3.add_subplot(1, 1, 1)
 ax3.set_xlabel('X (m)')
 ax3.set_ylabel('Y (m)')
+ax3.set_aspect('equal', 'datalim')
 ax3.grid(True)
 
 # Points and lines for representing positions and headings

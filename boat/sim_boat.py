@@ -60,8 +60,8 @@ umax = [np.inf, np.inf, np.inf]  # [N, N, N*m]
 
 # Sensor noise
 noise_mean = [0, 0, 0, 0, 0, 0]  # [m, m, rad, m/s, m/s, rad/s]
-noise_stdv = [0, 0, 0, 0, 0, 0]  # [m, m, rad, m/s, m/s, rad/s]
-# [0.01, 0.01, np.deg2rad(0.5), 0.02, 0.02, np.deg2rad(1)]
+noise_stdv = [0, 0, 0, 0, 0, 0] # [m, m, rad, m/s, m/s, rad/s]
+# [0.05, 0.05, np.deg2rad(0.8), 0.05, 0.05, np.deg2rad(2)]
 
 ################################################# CONTROL SYSTEM PARAMETERS
 

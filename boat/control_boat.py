@@ -2,8 +2,12 @@
 Concurrent-learning controller derived for
 Fossen's dynamic model of a boat.
 
-See:
-<paper>
+See: http://ieeexplore.ieee.org/abstract/document/7798300/
+--
+Bell, Zachary, et al.
+"Adaptive control of a surface marine craft with parameter
+identification using integral concurrent learning."
+Decision and Control (CDC), 2016 IEEE 55th Conference on. IEEE, 2016.
 
 """
 
